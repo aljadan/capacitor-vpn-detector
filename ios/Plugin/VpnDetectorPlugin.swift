@@ -9,10 +9,10 @@ import Capacitor
 public class VpnDetectorPlugin: CAPPlugin {
     private let implementation = VpnDetector()
 
-    @objc func echo(_ call: CAPPluginCall) {
-        let value = call.getString("value") ?? ""
+    @objc func isVpnActive(_ call: CAPPluginCall) {
         call.resolve([
-            "value": implementation.echo(value)
+            "value": implementation.getIsVpnActive()
         ])
     }
+
 }

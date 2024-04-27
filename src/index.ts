@@ -6,5 +6,6 @@ const VpnDetector = registerPlugin<VpnDetectorPlugin>('VpnDetector', {
   web: () => import('./web').then(m => new m.VpnDetectorWeb()),
 });
 
+
 export * from './definitions';
 export { VpnDetector };

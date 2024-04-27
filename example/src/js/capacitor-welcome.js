@@ -1,5 +1,6 @@
+import { App } from '@capacitor/app';
 import { SplashScreen } from '@capacitor/splash-screen';
-import { Camera } from '@capacitor/camera';
+import { VpnDetector } from 'capacitor-vpn-detector';
 
 window.customElements.define(
   'capacitor-welcome',
@@ -19,41 +20,6 @@ window.customElements.define(
         width: 100%;
         height: 100%;
       }
-      h1, h2, h3, h4, h5 {
-        text-transform: uppercase;
-      }
-      .button {
-        display: inline-block;
-        padding: 10px;
-        background-color: #73B5F6;
-        color: #fff;
-        font-size: 0.9em;
-        border: 0;
-        border-radius: 3px;
-        text-decoration: none;
-        cursor: pointer;
-      }
-      main {
-        padding: 15px;
-      }
-      main hr { height: 1px; background-color: #eee; border: 0; }
-      main h1 {
-        font-size: 1.4em;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
-      main h2 {
-        font-size: 1.1em;
-      }
-      main h3 {
-        font-size: 0.9em;
-      }
-      main p {
-        color: #333;
-      }
-      main pre {
-        white-space: pre-line;
-      }
     </style>
     <div>
       <capacitor-welcome-titlebar>
@@ -65,25 +31,7 @@ window.customElements.define(
           with a single code base.
         </p>
         <h2>Getting Started</h2>
-        <p>
-          You'll probably need a UI framework to build a full-featured app. Might we recommend
-          <a target="_blank" href="http://ionicframework.com/">Ionic</a>?
-        </p>
-        <p>
-          Visit <a href="https://capacitorjs.com">capacitorjs.com</a> for information
-          on using native features, building plugins, and more.
-        </p>
-        <a href="https://capacitorjs.com" target="_blank" class="button">Read more</a>
-        <h2>Tiny Demo</h2>
-        <p>
-          This demo shows how to call Capacitor plugins. Say cheese!
-        </p>
-        <p>
-          <button class="button" id="take-photo">Take Photo</button>
-        </p>
-        <p>
-          <img id="image" style="max-width: 100%">
-        </p>
+        <h3 id="is-vpn-active"></h3>
       </main>
     </div>
     `;
@@ -92,24 +40,35 @@ window.customElements.define(
     connectedCallback() {
       const self = this;
 
-      self.shadowRoot.querySelector('#take-photo').addEventListener('click', async function (e) {
-        try {
-          const photo = await Camera.getPhoto({
-            resultType: 'uri',
-          });
+      const el = self.shadowRoot.getElementById('is-vpn-active');
 
-          const image = self.shadowRoot.querySelector('#image');
-          if (!image) {
-            return;
-          }
-
-          image.src = photo.webPath;
-        } catch (e) {
-          console.warn('User cancelled', e);
-        }
+      VpnDetector.isVpnActive().then(isVpnActive => {
+        el.innerText = `VPN is ${isVpnActive.value ? 'active' : 'not active'}`;
       });
+
+      // addListener('vpnStateChange', isVpnActive => {
+      //   el.innerText = `VPN is ${
+      //     isVpnActive.value ? 'active' : 'not active'
+      //   }, add listener`;
+      // });
+
+      App.addListener('appStateChange', () => {
+        VpnDetector.isVpnActive().then(isVpnActive => {
+          el.innerText = `VPN is ${
+            isVpnActive.value ? 'active' : 'not active'
+          }`;
+        });
+      });
+
+      // Network.addListener('networkStatusChange', () => {
+      //   VpnDetector.isVpnActive().then(isVpnActive => {
+      //     el.innerText = `VPN is ${
+      //       isVpnActive.value ? 'active' : 'not active'
+      //     } network`;
+      //   });
+      // });
     }
-  }
+  },
 );
 
 window.customElements.define(
@@ -138,5 +97,5 @@ window.customElements.define(
     <slot></slot>
     `;
     }
-  }
+  },
 );
